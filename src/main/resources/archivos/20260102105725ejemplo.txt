@@ -1,0 +1,3 @@
+Nombre|ApellidoPaterno|ApellidoMaterno|Telefono|fechanacimiento|Username|Email|Sexo|Celular|Curp|Password|IdRol|Estatus|Imagen
+Alvaro|Mendoza|Heras|6362565657|23-11-2002|usernemaa|emaiil@gmail.com|h|3030100352|HEMJ020723HKCRULA2|passworddD1|1|1|null
+Cristian|Cruz|Ruiz|6362565657|23-11-2002|usernemaa11|ema21iil@gmail.com|h|3030100352|HEMJ020723HKPSULA2|passwrddD1|1|1|null
