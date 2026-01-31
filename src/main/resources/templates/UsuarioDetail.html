@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
         <title>Detalles Usuario</title>
         <meta charset="UTF-8">
@@ -23,11 +23,50 @@
 
         <div class="container text-center rounded shadow-sm mt-4">
             <div class="row mb-3 align-items-start">
-                <div class="text-center d-grid gap-2 d-md-block mb-3">
-                    <a th:href="@{/usuario/form}" class="btn btn-info"><i class="bi bi-file-earmark-text"></i>Formulario</a>
-                    <a th:href="@{/usuario/CargaMasiva}" class="btn btn-secondary"><i class="bi bi-file-earmark-text"></i>Carga Masiva</a>
-                    <a th:href="@{/usuario}" class="btn btn-light"><i class="bi bi-house"></i>Inicio</a>
-                </div>
+
+                <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom mb-4">
+                    <div class="container-fluid">                      
+
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                <li class="nav-item" sec:authorize="hasRole('Admin')">
+                                    <a class="nav-link text-dark" th:href="@{/usuario}"><i class="bi bi-house"></i> Inicio</a>
+                                </li>
+                                <li class="nav-item" sec:authorize="hasRole('Admin')">
+                                    <a class="nav-link text-dark" th:href="@{/usuario/form}"><i class="bi bi-file-earmark-text"></i> Formulario</a>
+                                </li>
+                                <li class="nav-item" sec:authorize="hasRole('Admin')">
+                                    <a class="nav-link text-dark" th:href="@{/usuario/CargaMasiva}"><i class="bi bi-file-earmark-arrow-up"></i> Carga Masiva</a>
+                                </li>
+                                <li class="nav-item" sec:authorize="hasRole('Admin')">
+                                    <a class="nav-link text-dark" th:href="@{/usuario/detail/{IdUsuario} (IdUsuario = ${UsuarioL.IdUsuario})}"><i class="bi bi-vector-pen"></i> Mi perfil</a>
+                                </li>
+                            </ul>
+
+                            <div class="d-flex align-items-center border-top pt-3 mt-2 pt-lg-0 mt-lg-0 border-lg-0 border-top-0">
+                                <div class="d-flex align-items-center me-auto">
+                                    <label class="me-2 mb-0 fw-bold" th:text="${UsuarioL.username}"></label>
+                                    <div class="me-3">
+                                        <img th:src="${UsuarioL.Imagen != null && UsuarioL.Imagen != 'null' ? 'data:image/*;base64,' + UsuarioL.Imagen : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNT31I-b-Jdf8bjPM-mm-V1qCpb-oudRLvtw&s'}"
+                                             style="width: 35px; height: 35px; object-fit: cover; border-radius: 50%; border: 1px solid #ccc;"
+                                             class="img-fluid" alt="Perfil">
+                                    </div>
+                                </div>
+
+                                <form th:action="@{/logout}" method="post" class="m-0">
+                                    <button class="btn btn-outline-danger btn-sm d-flex align-items-center" type="submit">
+                                        <span class="d-lg-none me-2">Salir</span> <i class="bi bi-box-arrow-right"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
                 <!-- INFORMACIÓN DEL USUARIO -->
                 <div class="col">
                     <h3>Información Usuario</h3>
@@ -41,7 +80,7 @@
                     <form th:action="@{/usuario/updateImagen}" method="post" enctype="multipart/form-data" id="formImagen">
                         <input type="hidden" name="idUsuario" th:value="${usuario.idUsuario}" />
 
-                        <input type="file" name="imagenFile" id="inputImagen" accept="image/*" style="display: none;" onchange="this.form.submit()" />
+                        <input th:disabled="${session.userEstatus == 0 || session.userEstatus == 2}" type="file" name="imagenFile" id="inputImagen" accept="image/*" style="display: none;" onchange="this.form.submit()" />
 
                         <div class="mt-2">
                             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('inputImagen').click();">
@@ -88,12 +127,12 @@
                             <span class="text-danger error-msg"></span>
                         </div>
 
-                        <!--                        <div class="col-md-6 mb-3">
-                                                    <label class="form-label fw-bold">Password</label>
-                                                    <input type="password" class="form-control" placeholder="password"
-                                                           th:field="${usuario.password}" oninput="password(event, this)">
-                                                    <span class="text-danger error-msg"></span>
-                                                </div>-->
+                        <!--                                                <div class="col-md-6 mb-3">
+                                                                            <label class="form-label fw-bold">Password</label>
+                                                                            <input type="password" class="form-control" placeholder="password"
+                                                                                   th:field="${usuario.password}" oninput="password(event, this)">
+                                                                            <span class="text-danger error-msg"></span>
+                                                                        </div>-->
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Rol</label>
@@ -156,7 +195,7 @@
 
                         <!-- Button trigger modal -->
                         <div class="col-12 mb-3">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editarUsuario">
+                            <button type="button" class="btn btn-primary w-100 w-md-auto" th:disabled="${session.userEstatus == 0 || session.userEstatus == 2}" data-bs-toggle="modal" data-bs-target="#editarUsuario">
                                 Editar Datos
                             </button>
                         </div>
@@ -164,7 +203,7 @@
                 </div>
 
                 <!-- DIRECCIONES -->
-                <div class="col">
+                <div class="col-12 col-lg-6">
                     <h3>Dirección(es)</h3>
                     <table class="table">
                         <thead>
@@ -188,14 +227,14 @@
                                     <div>
                                         <a class="btn btn-warning btn-sm me-2"
                                            data-bs-toggle="modal"
-                                           data-bs-target="#modalDireccion" th:onclick="|modalDireccionEdit(${direccion.idDireccion})|">
+                                           data-bs-target="#modalDireccion" th:disabled="${session.userEstatus == 0 || session.userEstatus == 2}" th:onclick="|modalDireccionEdit(${direccion.idDireccion})|">
                                             <i class="bi bi-pencil-square"></i> Editar
                                         </a>
 
 
 
 
-                                        <button th:onclick="|EliminarDireccion(${usuario.IdUsuario},${direccion.idDireccion})|" class="btn btn-danger">
+                                        <button th:disabled="${session.userEstatus == 0 || session.userEstatus == 2}" th:onclick="|EliminarDireccion(${usuario.IdUsuario},${direccion.idDireccion})|" class="btn btn-danger">
                                             <i class="bi bi-trash-fill"></i>
                                         </button>
                                     </div>
@@ -216,7 +255,7 @@
                         <!--                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#agregarDireccion">
                                                     Agregar Dirección
                                                 </button>-->
-                        <button type="button" class="btn btn-secondary" onclick="modalDireccionEdit(0)">
+                        <button th:disabled="${session.userEstatus == 0 || session.userEstatus == 2}" type="button" class="btn btn-secondary" onclick="modalDireccionEdit(0)" >
                             Agregar Dirección
                         </button>
 
@@ -277,7 +316,9 @@
                                         <label class="form-label fw-bold">Password</label>
                                         <input type="text" 
                                                class="form-control" 
-                                               th:field="*{password}" th:value="${usuario.password}"
+
+                                               name="password"
+                                               placeholder="Dejar en blanco para no cambiar"
                                                oninput="password(event, this)">
                                         <span class="text-danger error-msg"></span>
                                     </div>
@@ -335,7 +376,7 @@
                                         </div>
 
                                     </div>                                   
-                                    <div
+                                    <div sec:authorize="hasRole('Admin')"> 
                                         <label for="RolUsuario" class="form-label">Rol</label>
                                         <select class="form-select" id="RolUsuario" th:field="*{rol.idRol}">
                                             <option value="0">Selecciona un Rol</option>
@@ -466,9 +507,39 @@
             </div>
 
 
+            <!--Modal de Bloqueo segun el estatus-->
+
+            <div th:if="${session.userEstatus != 1}" id="bloqueoModal" 
+                 class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-danger shadow-lg">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title"><i class="bi bi-lock-fill"></i> Cuenta Restringida</h5>
+                        </div>
+                        <div class="modal-body text-center">
+                            <p class="fs-5" th:text="${session.userEstatus == 0 ? 
+                               'Tu cuenta está deshabilitada temporalmente.' : 
+                               'Tu cuenta ha expirado.'}"></p>
+                            <p class="text-muted">No puedes realizar acciones hasta que un administrador te habilite.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a th:href="@{/logout}" class="btn btn-secondary">Cerrar Sesión</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
 
     </body>
+
+    <script th:if="${session.userEstatus != 1}">
+        window.onload = function () {
+            var modalBloqueo = new bootstrap.Modal(document.getElementById('bloqueoModal'));
+            modalBloqueo.show();
+        };
+    </script>
 
 
     <script>
@@ -736,13 +807,13 @@
                 return;
             }
 
-            
+
             const fechaSeleccionada = new Date(valor);
-            
+
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
 
-            
+
             if (fechaSeleccionada <= hoy) {
                 $input.removeClass("error").addClass("correct");
                 $errorMsg.text("");

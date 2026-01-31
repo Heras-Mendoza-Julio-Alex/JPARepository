@@ -26,13 +26,56 @@
 
         <h1 class="card text-center bg-success text-light">Información de Usuarios</h1>
 
-        <div class="text-center d-grid gap-2 d-md-block mb-3">
-            <a th:href="@{/usuario/form}" class="btn btn-info"><i class="bi bi-file-earmark-text"></i>Formulario</a>
-            <a th:href="@{/usuario/CargaMasiva}" class="btn btn-secondary"><i class="bi bi-file-earmark-text"></i>Carga Masiva</a>
-            <a th:href="@{/usuario}" class="btn btn-light"><i class="bi bi-house"></i>Inicio</a>
+        <div class="container text-center">
+            <div class="row mb-3 align-items-start">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom mb-4">
+                    <div class="container-fluid">                      
+
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                <li class="nav-item" sec:authorize="hasRole('Admin')">
+                                    <a class="nav-link text-dark" th:href="@{/usuario}"><i class="bi bi-house"></i> Inicio</a>
+                                </li>
+                                <li class="nav-item" sec:authorize="hasRole('Admin')">
+                                    <a class="nav-link text-dark" th:href="@{/usuario/form}"><i class="bi bi-file-earmark-text"></i> Formulario</a>
+                                </li>
+                                <li class="nav-item" sec:authorize="hasRole('Admin')">
+                                    <a class="nav-link text-dark" th:href="@{/usuario/CargaMasiva}"><i class="bi bi-file-earmark-arrow-up"></i> Carga Masiva</a>
+                                </li>
+                                <li class="nav-item" sec:authorize="hasRole('Admin')">
+                                    <a class="nav-link text-dark" th:href="@{/usuario/detail/{IdUsuario} (IdUsuario = ${UsuarioL.IdUsuario})}"><i class="bi bi-vector-pen"></i> Mi perfil</a>
+                                </li>
+                            </ul>
+
+                            <div class="d-flex align-items-center border-top pt-3 mt-2 pt-lg-0 mt-lg-0 border-lg-0 border-top-0">
+                                <div class="d-flex align-items-center me-auto">
+                                    <label class="me-2 mb-0 fw-bold" th:text="${UsuarioL.username}"></label>
+                                    <div class="me-3">
+                                        <img th:src="${UsuarioL.Imagen != null && UsuarioL.Imagen != 'null' ? 'data:image/*;base64,' + UsuarioL.Imagen : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNT31I-b-Jdf8bjPM-mm-V1qCpb-oudRLvtw&s'}"
+                                             style="width: 35px; height: 35px; object-fit: cover; border-radius: 50%; border: 1px solid #ccc;"
+                                             class="img-fluid" alt="Perfil">
+                                    </div>
+                                </div>
+
+                                <form th:action="@{/logout}" method="post" class="m-0">
+                                    <button class="btn btn-outline-danger btn-sm d-flex align-items-center" type="submit">
+                                        <span class="d-lg-none me-2">Salir</span> <i class="bi bi-box-arrow-right"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+            </div>
+
         </div>
         <section class="container">
-            <form class="mb-3" method="post" th:object="${usuarioBusqueda}" th:action="@{usuario/search}">
+            <form class="mb-3" method="post" th:object="${usuarioBusqueda}" th:action="@{/usuario/search}">
                 <div class="input-group">
                     <label class="input-group-text">BUSQUEDA:</label>
                     <input type="text" class="form-control" placeholder="Nombre" id="nombre" th:field="*{Nombre}"/>
@@ -51,72 +94,121 @@
                 </div>
             </form>
         </section>
-        <div>
-            <table class="table table-success table-striped table-bordered text-center">
-                <thead>
-                    <tr>
-                        <th class="col-2">Accion</th>
-                        <th class="col-3">Nombre</th>
-                        <th class="col-3">Información</th>
-                        <th class="col-4">Direcciones</th>
-                        <th>Estatus</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="usuario : ${Usuarios}">
 
-                        <td th:classappend="${usuario.estatus == 0} ? 'celda-bloqueada' : ''">
-                            <div class="btn-group" role="group" 
-                                 th:classappend="${usuario.estatus == 0} ? 'acciones-deshabilitadas' : ''">
-                                <button th:onclick="|EliminarUsuario(${usuario.IdUsuario})|" class="btn btn-danger">
-                                    <i class="bi bi-trash-fill"></i>
-                                </button>
-                                <a th:href="@{usuario/detail/{IdUsuario} (IdUsuario = ${usuario.IdUsuario})}" class="btn btn-warning">
-                                    <i class="bi bi-vector-pen"></i>
-                                </a>
-                            </div>
-                        </td>
 
-                        <td th:classappend="${usuario.estatus == 0} ? 'celda-bloqueada' : ''"
-                            th:text="|${usuario.Nombre} ${usuario.ApellidoPaterno} ${usuario.ApellidoMaterno}|"> 
-                        </td>
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table table-hover text-center align-middle mb-0">
+                    <thead class="table-success">
+                        <tr>
+                            <th scope="col">Acción</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Información</th>
+                            <th scope="col">Direcciones</th>
+                            <th scope="col">Estatus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="usuario : ${Usuarios}">
+                            <td th:classappend="${usuario.estatus == 0 || usuario.estatus == 2} ? 'celda-bloqueada' : ''">
+                                <div class="btn-group btn-group-sm" role="group" 
+                                     th:classappend="${usuario.estatus == 0 || usuario.estatus == 2} ? 'acciones-deshabilitadas' : ''">
+                                    <button th:onclick="|EliminarUsuario(${usuario.IdUsuario})|" class="btn btn-danger" title="Eliminar">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                    <a th:href="@{/usuario/detail/{IdUsuario} (IdUsuario = ${usuario.IdUsuario})}" class="btn btn-warning" title="Editar">
+                                        <i class="bi bi-vector-pen"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-info text-white" 
+                                            th:onclick="'CuentaExpiracionEstatus(' + ${usuario.IdUsuario} + ', 2)'" title="Expirar">
+                                        <i class="bi bi-emoji-dizzy"></i>
+                                    </button>
+                                </div>
+                            </td>
 
-                        <td class="text-start" th:classappend="${usuario.estatus == 0} ? 'celda-bloqueada' : ''"> 
-                            <ul>
-                                <li th:text="${usuario.telefono}"></li>
-                                <li th:text="${usuario.fechanacimiento}"></li>
-                                <li th:text="${usuario.username}"></li>
-                                <li th:text="${usuario.email}"></li>
-                                <li th:text="${usuario.sexo}"></li>  
-                                <li th:text="${usuario.celular}"></li>  
-                                <li th:text="${usuario.curp}"></li>  
-                                <li th:text="${usuario.estatus}"></li>  
-                                <li th:text="${usuario.Rol.nombre}"></li>  
-                            </ul>
-                        </td>
+                            <td class="fw-bold small" th:classappend="${usuario.estatus == 0 || usuario.estatus == 2} ? 'celda-bloqueada' : ''"
+                                th:text="|${usuario.Nombre} ${usuario.ApellidoPaterno} ${usuario.ApellidoMaterno}|"> 
+                            </td>
 
-                        <td th:classappend="${usuario.estatus == 0} ? 'celda-bloqueada' : ''">
-                            <ul th:if="${usuario.Direcciones != null}">
-                                <li th:each="direccion : ${usuario.Direcciones}" th:text="${direccion.Calle}"></li>
-                            </ul>
-                        </td>
+                            <td class="text-start" th:classappend="${usuario.estatus == 0 || usuario.estatus == 2} ? 'celda-bloqueada' : ''"> 
+                                <ul class="list-unstyled mb-0 small" style="min-width: 150px; font-size: 0.85rem;">
+                                    <li><i class="bi bi-phone"></i> <span th:text="${usuario.telefono}"></span></li>
+                                    <li><i class="bi bi-person-badge"></i> <span th:text="${usuario.username}"></span></li>
+                                    <li class="text-truncate" style="max-width: 180px;"><i class="bi bi-envelope"></i> <span th:text="${usuario.email}"></span></li>
+                                    <li><i class="bi bi-briefcase"></i> <span class="badge bg-secondary" th:text="${usuario.Rol.nombre}"></span></li>
+                                </ul>
+                            </td>
 
-                        <td>
-                            <div class="form-check form-switch d-flex justify-content-center">
-                                <input class="form-check-input"
-                                       type="checkbox"
-                                       role="switch"
-                                       th:id="'switch' + ${usuario.IdUsuario}"
-                                       th:checked="${usuario.estatus == 1}"
-                                       th:onchange="|cambiarEstatus(this, ${usuario.IdUsuario})|">
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <td class="small" th:classappend="${usuario.estatus == 0 || usuario.estatus == 2 } ? 'celda-bloqueada' : ''">
+                                <ul class="list-unstyled mb-0" th:if="${usuario.Direcciones != null}">
+                                    <li th:each="direccion : ${usuario.Direcciones}">
+                                        <i class="bi bi-geo-alt"></i> <span th:text="${direccion.Calle}"></span>
+                                    </li>
+                                </ul>
+                                <span th:unless="${usuario.Direcciones != null}" class="text-muted italic">N/A</span>
+                            </td>
+
+                            <td>
+                                <div class="form-check form-switch d-flex justify-content-center">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           role="switch"
+                                           th:id="'switch' + ${usuario.IdUsuario}"
+                                           th:checked="${usuario.estatus == 1}"
+                                           th:onchange="|cambiarEstatus(this, ${usuario.IdUsuario})|">
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
+
+
         <script>
+
+            function CuentaExpiracionEstatus(IdUsuario, valor) {
+                Swal.fire({
+                    title: "¿Estas seguro de dar de baja al usuario?",
+                    text: "Se va a modificar el usuario",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Si, cambiar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch("/api/usuario/" + IdUsuario + "/baja", {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(valor)
+                        })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.Correct) {
+                                        Swal.fire("¡Modificado!", "El usuario se modifico correctamente", "success")
+                                                .then(() => {
+                                                    location.reload();
+                                                });
+                                    } else {
+                                        Swal.fire("Error", data.ErrorMessage, "error");
+                                    }
+                                })
+                                .catch(error => {
+                                    Swal.fire("Error", "Ocurrió un fallo en la conexión", "error");
+                                });
+
+                    }
+                });
+
+
+            }
+
+
+
 
             function cambiarEstatus(checkbox, IdUsuario) {
                 const nuevoEstatus = checkbox.checked ? 1 : 0;

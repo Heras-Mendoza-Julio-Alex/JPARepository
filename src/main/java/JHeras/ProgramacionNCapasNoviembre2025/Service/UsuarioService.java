@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +17,10 @@ public class UsuarioService {
 
     @Autowired
     private IUsuarioJPARepository usuarioJPARepository;
+    
+    @Autowired
+    private PasswordEncoder PasswordEncoder;
+
 
     public Result getAll() {
         Result result = new Result();
@@ -107,7 +112,13 @@ public class UsuarioService {
                 usuario.setIdUsuario(usuarioDB.getIdUsuario());
                 usuario.setRol(usuario.getRol() == null || usuario.getRol().getIdRol() == 0 ? usuarioDB.getRol() : usuario.getRol());
                 usuario.setSexo(usuario.getSexo() == null ? usuarioDB.getSexo() : usuario.getSexo());
-                usuario.setPassword(usuario.getPassword() == null ? usuarioDB.getPassword() : usuario.getPassword());
+
+                if (usuario.getPassword() != null && !usuario.getPassword().isBlank()) {
+                    usuario.setPassword(PasswordEncoder.encode(usuario.getPassword()));
+                } else {
+                    usuario.setPassword(usuarioDB.getPassword());
+                }
+
                 usuario.setImagen(usuario.getImagen() == null ? usuarioDB.getImagen() : usuario.getImagen());
                 Integer estatusRecibido = usuario.getEstatus();
 
@@ -208,7 +219,7 @@ public class UsuarioService {
 
     public Result AddCargaMasiva(List<Usuario> usuarios) {
         Result result = new Result();
-                
+
         try {
             for (Usuario usuario : usuarios) {
                 if (usuario.Direcciones != null && !usuario.Direcciones.isEmpty()) {

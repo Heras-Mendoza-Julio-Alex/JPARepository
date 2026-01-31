@@ -1,5 +1,6 @@
 package JHeras.ProgramacionNCapasNoviembre2025.Controller;
 
+import JHeras.ProgramacionNCapasNoviembre2025.DAO.IUsuarioJPARepository;
 import JHeras.ProgramacionNCapasNoviembre2025.JPA.Direccion;
 import JHeras.ProgramacionNCapasNoviembre2025.JPA.ErrorCarga;
 import JHeras.ProgramacionNCapasNoviembre2025.JPA.Pais;
@@ -22,14 +23,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Base64;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -60,6 +59,9 @@ import java.util.Optional;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Controller
 @RequestMapping("usuario")
@@ -89,8 +91,20 @@ public class UsuarioController {
     @Autowired
     private ValidationService validatorService;
 
+    @Autowired
+    private PasswordEncoder PasswordEncoder;
+
+    @Autowired
+    private IUsuarioJPARepository iusuarioJPARepository;
+
     @GetMapping
-    public String GetAll(Model model) {
+    public String GetAll(Model model, Authentication authentication) {
+        String usernameLogueado = authentication.getName();
+
+        Usuario usuarioL = iusuarioJPARepository.findByUsername(usernameLogueado);
+
+        model.addAttribute("UsuarioL", usuarioL);
+
         Result usuarios = usuarioService.getAll();
         Result roles = RolService.getAll();
         model.addAttribute("Usuarios", usuarios.Objects);
@@ -101,10 +115,24 @@ public class UsuarioController {
     }
 
     @GetMapping("detail/{IdUsuario}")
-    public String Detail(@PathVariable("IdUsuario") int IdUsuario, Model model) {
+    public String Detail(@PathVariable("IdUsuario") int IdUsuario, Authentication authentication, Model model) {
+
+        String usernameLogueado = authentication.getName();
+
+        Usuario usuarioL = iusuarioJPARepository.findByUsername(usernameLogueado);
+
+        boolean isAdmin = authentication.getAuthorities().stream().
+                anyMatch(a -> a.getAuthority().equals("ROLE_Admin"));
+
+        if (!isAdmin && usuarioL.getIdUsuario() != IdUsuario) {
+            return "redirect:/usuario/detail/" + usuarioL.getIdUsuario();
+        }
+
         Result result = usuarioService.getById(IdUsuario);
         Result Presult = PaisService.getAll();
         Result roles = RolService.getAll();
+
+        model.addAttribute("UsuarioL", usuarioL);
         model.addAttribute("Paises", Presult.Objects);
         model.addAttribute("Roles", roles.Objects);
         model.addAttribute("usuario", result.object);
@@ -113,7 +141,13 @@ public class UsuarioController {
     }
 
     @GetMapping("form")
-    public String Form(Model model) {
+    public String Form(Model model, Authentication authentication) {
+
+        String usernameLogueado = authentication.getName();
+
+        Usuario usuarioL = iusuarioJPARepository.findByUsername(usernameLogueado);
+
+        model.addAttribute("UsuarioL", usuarioL);
 
         Usuario usuario = new Usuario();
         usuario.Direcciones = new ArrayList<>();
@@ -144,6 +178,10 @@ public class UsuarioController {
             }
         }
         usuario.setEstatus(1);
+
+        String contraseñaHaseada = PasswordEncoder.encode(usuario.getPassword());
+        usuario.setPassword(contraseñaHaseada);
+
         Result result;
 
         result = usuarioService.addUsuario(usuario);
@@ -155,14 +193,9 @@ public class UsuarioController {
 
     @PostMapping("/editar")
     public String updateUsuario(
-            //            @Valid
             @ModelAttribute("Usuario") Usuario usuario,
-            BindingResult bindingResult,
             Model model) {
-//if (bindingResult.hasErrors()) {
-//            model.addAttribute("Usuario", usuario);
-//            return "FormUsu";
-//        }
+
         int idUsuario = usuario.getIdUsuario();
 
         Result result = usuarioService.edit(idUsuario, usuario);
@@ -257,17 +290,20 @@ public class UsuarioController {
     }
 
     @PostMapping("/search")
-    public String BuscarUsuarios(@ModelAttribute("UsuariosBusqueda") Usuario usuario, Model model) {
+    public String BuscarUsuarios(@ModelAttribute("usuarioBusqueda") Usuario usuario, Model model, Authentication authentication) {
+
+        String usernameLogueado = authentication.getName();
+        Usuario usuarioL = iusuarioJPARepository.findByUsername(usernameLogueado);
+        model.addAttribute("UsuarioL", usuarioL);
 
         Result roles = RolService.getAll();
+        model.addAttribute("Roles", roles.Objects);
 
         Result result = usuarioService.Busqueda(usuario);
-
-        model.addAttribute("usuarioBusqueda", new Usuario());
-
-        model.addAttribute("Roles", roles.object);
-
         model.addAttribute("Usuarios", result.Objects);
+
+        model.addAttribute("usuarioBusqueda", usuario);
+
         return "Usuario";
     }
 
@@ -345,7 +381,7 @@ public class UsuarioController {
                 int idr = Integer.parseInt(row.getCell(11).toString());
 
                 usuario.Rol.setIdRol(idr);
-                
+
                 usuario.setEstatus(Integer.parseInt(row.getCell(12).toString()));
                 usuario.setImagen(row.getCell(13).toString());
 

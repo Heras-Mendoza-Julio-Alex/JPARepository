@@ -13,7 +13,60 @@
     </head>
     <body class="bg-light">
 
+
         <div class="container my-5">
+            <div class="container text-center ">
+                <div class="row mb-3 align-items-start">
+
+                    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom mb-4">
+                        <div class="container-fluid">                        
+
+                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                                <span class="navbar-toggler-icon"></span>
+                            </button>
+
+                            <div class="collapse navbar-collapse" id="navbarNav">
+                                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" th:href="@{/usuario}"><i class="bi bi-house"></i> Inicio</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" th:href="@{/usuario/form}"><i class="bi bi-file-earmark-text"></i> Formulario</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" th:href="@{/usuario/CargaMasiva}">
+                                            <i class="bi bi-file-earmark-arrow-up"></i> Carga Masiva
+                                        </a>
+                                    </li>
+                                    <!--                            <li class="nav-item">
+                                    
+                                                                    <a class="nav-link text-dark" th:href="@{/usuario/detail/{IdUsuarioL} (IdUsuarioL = ${UsuarioL.IdUsuario})}">
+                                                                        <i class="bi bi-vector-pen"> </i>Mi perfil
+                                                                    </a>
+                                                                </li>-->
+                                </ul>
+
+                                <div class="d-flex align-items-center border-top pt-3 mt-2 pt-lg-0 mt-lg-0 border-lg-0 border-top-0">
+<!--                                    <div class="d-flex align-items-center me-auto">
+                                        <label class="me-2 mb-0 fw-bold" th:text="${UsuarioL.username}"></label>
+                                        <div class="me-3">
+                                            <img th:src="${UsuarioL.Imagen != null && UsuarioL.Imagen != 'null' ? 'data:image/*;base64,' + UsuarioL.Imagen : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNT31I-b-Jdf8bjPM-mm-V1qCpb-oudRLvtw&s'}"
+                                                 style="width: 35px; height: 35px; object-fit: cover; border-radius: 50%; border: 1px solid #ccc;"
+                                                 class="img-fluid" alt="Perfil">
+                                        </div>-->
+                                        <form th:action="@{/logout}" method="post" class="m-0">
+                                            <button class="btn btn-outline-danger btn-sm d-flex align-items-center" type="submit">
+                                                <span class="d-lg-none me-2">Salir</span> <i class="bi bi-box-arrow-right"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                    </nav>
+
+                </div>
+            </div>
+
             <form method="post" th:object="${Usuario}" th:action="@{add}" class="p-4 border rounded shadow bg-white" enctype="multipart/form-data">
                 <input type="hidden" th:field="*{idUsuario}" />
 
@@ -110,8 +163,8 @@
                             <label for="Username" class="form-label">Usuario</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                <input type="text" class="form-control" id="Username" th:field="*{Username}" placeholder="Usuario">
-                                <div class="text-danger" th:if="${#fields.hasErrors('Username')}" th:errors="*{Username}"></div>
+                                <input type="text" class="form-control" id="Username" th:field="*{username}" placeholder="Usuario">
+                                <div class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
                             </div>
                         </div>
                         <div class="col-md-4">                         

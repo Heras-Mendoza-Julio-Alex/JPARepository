@@ -20,6 +20,8 @@ public interface IUsuarioJPARepository extends JpaRepository<Usuario, Integer>{
                            @Param("apellidoPaterno") String apellidoPaterno,
                            @Param("apellidoMaterno") String apellidoMaterno,
                            @Param("idRol")Integer idRol);
+
+    public Usuario findByUsername(String username);
     
     
 }

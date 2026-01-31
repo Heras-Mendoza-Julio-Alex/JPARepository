@@ -63,7 +63,7 @@ public class Usuario {
     @NotEmpty(message = "El campo es requerido")
     @NotNull(message = "El campo es requerido")
     @Column(name = "USERNAME", nullable = false)
-    private String Username;
+    private String username;
 
     @NotEmpty(message = "El campo es requerido")
     @NotNull(message = "El campo es requerido")
@@ -156,13 +156,15 @@ public class Usuario {
     }
 
     public String getUsername() {
-        return Username;
+        return username;
     }
 
-    public void setUsername(String Username) {
-        this.Username = Username;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
+
+    
     public String getEmail() {
         return Email;
     }
